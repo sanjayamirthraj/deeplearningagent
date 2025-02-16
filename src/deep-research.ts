@@ -167,6 +167,7 @@ export async function deepResearch({
   learnings = [],
   visitedUrls = [],
   onProgress,
+  onLearning,
 }: {
   query: string;
   breadth: number;
@@ -174,6 +175,7 @@ export async function deepResearch({
   learnings?: string[];
   visitedUrls?: string[];
   onProgress?: (progress: ResearchProgress) => void;
+  onLearning?: (learning: string) => void;
 }): Promise<ResearchResult> {
   const progress: ResearchProgress = {
     currentDepth: depth,
@@ -222,6 +224,12 @@ export async function deepResearch({
             result,
             numFollowUpQuestions: newBreadth,
           });
+
+          // Notify about new learnings
+          if (onLearning) {
+            newLearnings.learnings.forEach(learning => onLearning(learning));
+          }
+
           const allLearnings = [...learnings, ...newLearnings.learnings];
           const allUrls = [...visitedUrls, ...newUrls];
 
@@ -249,6 +257,7 @@ export async function deepResearch({
               learnings: allLearnings,
               visitedUrls: allUrls,
               onProgress,
+              onLearning,
             });
           } else {
             reportProgress({
